@@ -128,6 +128,11 @@ int main()
         int n,a;
         cout<<"Podaj ilosc elementow: "<<endl;
         cin>>n;
+        if(n <= 0)
+        {
+            cout<<"Niepoprawna liczba elementow"<<endl;
+            return 0;
+        }
         for(int i=0;i<n;i++)
         {
             cin>>a;
