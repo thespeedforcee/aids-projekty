@@ -119,6 +119,105 @@ void heapSort(vector<int>& arr) {
     }
 }
 
+void quicksort(vector<int> & v, int left, int right,int &porownania,int &zamiany,bool pokaz_pivot=false)
+{
+    if(right<=left){return;}
+    int p = v[left];
+    if(pokaz_pivot) cout<<"wartosc pivota: "<<p<<endl;
+
+    int i=left,j=right;
+
+    while(i <= j)
+    {
+        porownania++;
+        while(i <= right && v[i] > p){
+            i++;
+            porownania++;
+        }
+
+        porownania++;
+        while(j>=left && v[j] < p){
+            j--;
+            porownania++;
+        }
+
+        if( i <= j){
+            swap(v[i], v[j]);
+            zamiany++;
+            i++;
+            j--;
+        }
+    }
+
+    if(j > left){
+        quicksort(v, left, j,porownania,zamiany,pokaz_pivot);
+    }
+    if(i < right){
+        quicksort(v, i, right,porownania,zamiany,pokaz_pivot);
+    }
+
+}
+
+void mymerge(vector<int> &v,int left,int mid,int right,int &ilepor)
+{
+    int rozm_lewa = mid - left + 1;
+    int rozm_prawa = right - mid;
+
+    vector<int> leftv(rozm_lewa),rightv(rozm_prawa);
+    for(int i=0;i<rozm_lewa;i++)
+    {
+        leftv[i] = v[left+i];
+    }
+    for(int i=0;i<rozm_prawa;i++)
+    {
+        rightv[i] = v[mid + i + 1];
+    }
+    int i=0,j=0;
+    int k=left;
+
+    //sortowanie i scalanie
+    while(i<rozm_lewa && j<rozm_prawa)
+    {
+        ilepor++;
+        if(leftv[i]>=rightv[j])
+        {
+            v[k] = leftv[i];
+            i++;
+        }
+        else{
+            v[k] = rightv[j];
+            j++;
+        }
+        k++;
+    }
+    //jesli zostaly jakies elementy w jednym z wektorow bo mialy nierowne rozmiary
+    while(i<rozm_lewa)
+    {
+        v[k] = leftv[i];
+        i++;
+        k++;
+    }
+    while(j<rozm_prawa)
+    {
+        v[k] = rightv[j];
+        j++;
+        k++;
+    }
+}
+void mergesort(vector<int> &v,int left,int right,int &ilescalen,int &ilepor)
+{
+    //jesli tylko jeden element
+    if(left>=right)
+    {
+        return;
+    }
+    int mid = left + (right-left)/2;
+    mergesort(v,left,mid,ilescalen,ilepor);
+    mergesort(v,mid+1,right,ilescalen,ilepor);
+    ilescalen++;
+    mymerge(v,left,mid,right,ilepor);
+}
+
 void wyswietl(const vector<int>& arr) {
     for (int x : arr) cout << x << " ";
     cout << endl;
@@ -146,8 +245,27 @@ void uruchomSortowanie(string nazwa, void (*sortFunc)(vector<int>&), vector<int>
          << "s, \nPorownania: " << porownania << ", \nZamiany: " << zamiany << endl;
 }
 
-void qsort_wrapper(vector<int>& arr) {
+void qsortiter_wrapper(vector<int>& arr) {
     quicksortiter(arr, arr.size());
+}
+
+void mergesort_wrapper(vector<int>& arr) {
+    int ilescalen = 0;
+    int ilepor = 0;
+    if (arr.empty()) return;
+    mergesort(arr, 0, arr.size() - 1, ilescalen, ilepor);
+    porownania = ilepor;
+    zamiany = ilescalen; 
+}
+
+void quicksortrek_wrapper(vector<int>& arr) {
+    int ilepor = 0;
+    int ilezam = 0;
+    if (arr.empty()) return;
+    bool pokaz = (arr.size() <= 12);
+    quicksort(arr, 0, arr.size() - 1, ilepor, ilezam, pokaz);
+    porownania = ilepor;
+    zamiany = ilezam;
 }
 
 int main() {
@@ -172,8 +290,10 @@ int main() {
     }
 
     uruchomSortowanie("Shell Sort", shellSortKnuth, dane_wejsciowe);
-    uruchomSortowanie("Quick Sort Iteracyjny", qsort_wrapper, dane_wejsciowe);
     uruchomSortowanie("Heap Sort", heapSort, dane_wejsciowe);
+    uruchomSortowanie("Merge Sort", mergesort_wrapper, dane_wejsciowe);
+    uruchomSortowanie("Quick Sort Iteracyjny", qsortiter_wrapper, dane_wejsciowe);
+    uruchomSortowanie("Quick Sort Rekurencyjny", quicksortrek_wrapper, dane_wejsciowe);
 
     return 0;
 }
